@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NX9 — NEXUS SEA 99</title>
+<link href="https://fonts.googleapis.com/css2?family=Sedgwick+Ave+Display&family=Anton&family=Oswald:wght@500;700&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   NX9 — CYBER GOTHIC GAMING EDITION
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --red: #ff0033;
+  --red-glow: #ff1a53;
+  --red-dark: #80001a;
+  --black: #030303;
+  --black-panel: #0a0505;
+  --white: #ffffff;
+  --silver: #c4c4c4;
+  
+  --font-brush: 'Sedgwick Ave Display', cursive;
+  --font-heavy: 'Anton', sans-serif;
+  --font-body: 'Oswald', sans-serif;
+  --font-num: 'Teko', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  line-height: 1.5;
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(255, 0, 51, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(255, 0, 51, 0.1) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Canvas Partikel & Api */
+#fx-canvas {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  z-index: -1; pointer-events: none;
+}
+
+/* ============ LOADING SCREEN ============ */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.8s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo {
+  font-family: var(--font-heavy);
+  font-size: 6rem; color: var(--white);
+  text-shadow: 0 0 20px var(--red), 0 0 50px var(--red);
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 50% { transform: scale(1.05); text-shadow: 0 0 40px var(--red-glow), 0 0 80px var(--red); } }
+
+/* ============ NAVBAR ============ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100; padding: 20px 5vw;
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+}
+.nav-left { font-family: var(--font-heavy); font-size: 1rem; letter-spacing: 0.1em; color: var(--white); }
+.nav-left span { color: var(--red); font-size: 0.7rem; display: block; letter-spacing: 0.2em;}
+.nav-right { font-family: var(--font-heavy); font-size: 1.8rem; color: var(--white); text-shadow: 0 0 10px var(--red); }
+.nav-right span { color: var(--red); }
+
+/* ============ HERO SECTION ============ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 100px 20px 50px;
+  text-align: center; position: relative;
+}
+
+.hero-logo {
+  font-family: var(--font-heavy);
+  font-size: clamp(6rem, 18vw, 10rem);
+  line-height: 0.8;
+  font-style: italic;
+  position: relative;
+  background: linear-gradient(180deg, #fff 0%, #dcdcdc 40%, #7a7a7a 60%, #ff1a53 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 25px rgba(255,0,51,0.8)) drop-shadow(0 10px 10px rgba(0,0,0,1));
+  margin-bottom: 20px;
+  z-index: 2;
+}
+.hero-logo::before {
+  content: '⚔';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em; color: rgba(255,0,51,0.3);
+  z-index: -1; filter: blur(4px);
+}
+
+.welcome-text {
+  font-family: var(--font-brush);
+  font-size: clamp(3rem, 10vw, 6rem);
+  line-height: 0.9;
+  color: #fff;
+  text-shadow: 3px 3px 0 #300000, -2px -2px 0 #000, 0 0 20px rgba(255,255,255,0.5), 0 0 40px var(--red);
+  transform: rotate(-3deg);
+  margin-bottom: 10px;
+  position: relative;
+}
+.open-mem {
+  font-family: var(--font-brush);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  color: var(--red);
+  text-shadow: 2px 2px 0 #000, 0 0 20px var(--red-glow), 0 0 40px var(--red);
+  transform: rotate(-2deg);
+  margin-bottom: 60px;
+  line-height: 1;
+}
+
+/* ============ RULES SECTION (Split Panel) ============ */
+.rules-wrapper {
+  display: flex; 
+  flex-direction: row;
+  width: 100%; 
+  max-width: 900px;
+  position: relative; 
+  margin-bottom: 40px;
+  gap: 30px;
+  padding: 20px 0;
+}
+.rules-wrapper::before {
+  content: ''; 
+  position: absolute; 
+  top: 0; bottom: 0; left: 50%; 
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--red), var(--red), transparent);
+  box-shadow: 0 0 15px var(--red); 
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.rules-top-line {
+  position: absolute; 
+  top: -10px; left: 0; right: 0; height: 20px;
+  border-top: 2px solid rgba(255,0,51,0.4);
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 -5px 15px rgba(255,0,51,0.2);
+}
+
+.rule-panel { 
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.rule-title {
+  font-family: var(--font-brush);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #fff;
+  text-shadow: 2px 2px 0 var(--red-dark);
+  margin-bottom: 20px;
+  position: relative;
+  display: inline-block;
+  transform: skewX(-5deg);
+  text-align: center;
+}
+.rule-title::after {
+  content: ''; position: absolute; bottom: 2px; left: -5%; width: 110%; height: 4px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="4"><path d="M0,2 Q25,0 50,2 T100,2" stroke="%23ff0033" stroke-width="3" fill="none"/></svg>') repeat-x;
+  filter: drop-shadow(0 0 5px var(--red));
+}
+
+.rule-list { 
+  list-style: none; 
+  width: 100%;
+  max-width: 300px;
+}
+.rule-list li {
+  font-family: var(--font-heavy);
+  font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+  letter-spacing: 0.05em;
+  color: #e0e0e0;
+  padding: 8px 0;
+  display: flex; 
+  align-items: center; 
+  gap: 10px;
+  text-shadow: 1px 1px 2px #000;
+}
+.rule-list li::before {
+  content: '✦';
+  color: var(--red);
+  font-size: 1.2em;
+  text-shadow: 0 0 8px var(--red), 0 0 15px var(--red);
+  flex-shrink: 0;
+}
+
+/* ============ BENEFIT SECTION ============ */
+.benefit-box {
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 40px;
+  padding: 30px 20px;
+  background: linear-gradient(180deg, rgba(10,5,5,0.8), rgba(0,0,0,0.9));
+  border: 1px solid rgba(255,0,51,0.3);
+  border-radius: 8px;
+  box-shadow: inset 0 0 20px rgba(255,0,51,0.05), 0 0 15px rgba(0,0,0,0.8);
+  position: relative;
+  text-align: center;
+}
+.benefit-box::before, .benefit-box::after {
+  content: ''; position: absolute; width: 15px; height: 15px;
+  border: 2px solid var(--red);
+}
+.benefit-box::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.benefit-box::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+.benefit-title {
+  font-family: var(--font-brush);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: #fff;
+  text-shadow: 0 0 10px var(--red);
+  margin-bottom: 20px;
+}
+.benefit-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px 30px;
+}
+.benefit-list li {
+  font-family: var(--font-heavy);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: #e0e0e0;
+  display: flex; align-items: center; gap: 8px;
+  text-transform: uppercase;
+}
+.benefit-list li::before {
+  content: '✦';
+  color: var(--red);
+  text-shadow: 0 0 8px var(--red);
+}
+
+/* ============ JOIN SECTION ============ */
+.join-box {
+  width: 100%; max-width: 900px;
+  padding: 40px 20px;
+  border: 2px solid rgba(255,0,51,0.3);
+  border-radius: 10px;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, rgba(255,0,51,0.1) 0%, transparent 70%);
+  box-shadow: inset 0 0 30px rgba(255,0,51,0.1), 0 0 30px rgba(0,0,0,0.8);
+  text-align: center;
+}
+.join-box::before, .join-box::after {
+  content: ''; position: absolute; width: 40px; height: 40px;
+  border: 2px solid var(--red); transition: 0.3s;
+}
+.join-box::before { top: -2px; left: -2px; border-right: none; border-bottom: none; box-shadow: -2px -2px 10px var(--red); }
+.join-box::after { bottom: -2px; right: -2px; border-left: none; border-top: none; box-shadow: 2px 2px 10px var(--red); }
+
+.join-text {
+  font-family: var(--font-brush);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: #fff;
+  text-shadow: 0 0 15px var(--red);
+  margin-bottom: 10px;
+  transform: rotate(-1deg);
+}
+.join-cta {
+  font-family: var(--font-brush);
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  color: #fff;
+  text-shadow: 3px 3px 0 var(--red-dark), 0 0 30px var(--red);
+  margin: 20px 0;
+  display: flex; align-items: center; justify-content: center; gap: 15px;
+  transform: rotate(-2deg);
+}
+.join-cta span { color: var(--red); font-family: var(--font-heavy); }
+
+/* Tombol-tombol */
+.btn-group {
+  display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;
+}
+.btn {
+  font-family: var(--font-heavy);
+  font-size: 1.1rem; letter-spacing: 0.1em;
+  padding: 12px 30px; border: none;
+  text-decoration: none; text-transform: uppercase;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+  transition: 0.3s;
+  cursor: pointer;
+}
+.btn:active {
+  transform: scale(0.95); 
+}
+.btn-red {
+  background: var(--red); color: #fff;
+  box-shadow: 0 0 15px rgba(255,0,51,0.5);
+}
+.btn-red:hover {
+  background: #fff; color: var(--red);
+  box-shadow: 0 0 25px #fff;
+}
+.btn-outline {
+  background: transparent; color: #fff; border: 1px solid var(--red);
+  clip-path: none; border-radius: 4px;
+}
+.btn-outline:hover { background: var(--red); color: #fff; }
+
+/* Tombol khusus TikTok */
+.btn-tiktok {
+  border-color: #fff;
+  color: #fff;
+}
+.btn-tiktok:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 20px #fff;
+}
+
+/* ============ FOOTER & ADMIN ============ */
+footer {
+  margin-top: 60px; padding: 30px; text-align: center;
+  border-top: 1px solid rgba(255,0,51,0.2);
+}
+.footer-social {
+  font-family: var(--font-heavy);
+  color: var(--silver);
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+.footer-social a {
+  color: #fff;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.footer-social a:hover {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--red);
+}
+.footer-btn {
+  background: transparent; color: #666; border: 1px solid #333;
+  padding: 8px 20px; font-family: var(--font-heavy);
+  cursor: pointer; border-radius: 5px; transition: 0.3s;
+}
+.footer-btn:hover { color: #fff; border-color: var(--red); box-shadow: 0 0 10px rgba(255,0,51,0.3); }
+
+/* ============ ADMIN MODAL ============ */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(5px);
+}
+.modal.open { display: flex; }
+.modal-box {
+  background: #0a0505; border: 1px solid var(--red);
+  padding: 30px; border-radius: 10px; width: 90%; max-width: 600px;
+  box-shadow: 0 0 30px rgba(255,0,51,0.2);
+}
+.modal h2 { font-family: var(--font-heavy); margin-bottom: 20px; color: var(--red); }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;
+  border-radius: 4px; outline: none;
+}
+.form-group input:focus { border-color: var(--red); }
+.admin-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; margin-bottom: 5px; border-left: 2px solid var(--red); }
+.btn-sm { padding: 5px 10px; font-size: 0.8rem; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 3px; }
+.btn-sm:hover { background: var(--red); }
+
+/* ============ RESPONSIVE (HP) ============ */
+@media (max-width: 768px) {
+  .rules-wrapper { 
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 30px;
+  }
+  .rule-panel {
+    padding: 0;
+  }
+  .rule-title {
+    font-size: clamp(1.3rem, 6vw, 1.8rem);
+    margin-bottom: 15px;
+  }
+  .rule-list {
+    max-width: 100%;
+  }
+  .rule-list li {
+    font-size: clamp(0.7rem, 3.5vw, 0.9rem);
+    gap: 6px;
+    padding: 5px 0;
+    word-break: break-word;
+  }
+  .rule-list li::before {
+    font-size: 0.9rem;
+  }
+  .benefit-list {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .join-cta { 
+    flex-direction: column; 
+    gap: 0; 
+    font-size: 3rem; 
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">NX9</div>
+</div>
+
+<canvas id="fx-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">NEXUS SEA 99 <span>MARGA COMMUNITY</span></div>
+  <div class="nav-right">NX<span>9</span></div>
+</nav>
+
+<!-- MAIN HERO -->
+<header class="hero" id="home">
+  
+  <div class="hero-logo">NX9</div>
+  
+  <div class="welcome-text">WELCOME TO</div>
+  <div class="open-mem">OPEN MEMBER</div>
+
+  <!-- RULES SPLIT PANEL (KIRI KANAN) -->
+  <div class="rules-wrapper" id="rules">
+    <div class="rules-top-line"></div>
+    
+    <!-- RULES CEWEK -->
+    <div class="rule-panel">
+      <h2 class="rule-title">RULES CEWK</h2>
+      <ul class="rule-list">
+        <li>NO DB MARGA</li>
+        <li>WAJIB CN AKUN UTAMA</li>
+        <li>NO BIKIN ONAR</li>
+        <li>NO DRAMA</li>
+        <li>NO KELUAR MASUK GC</li>
+        <li>16+</li>
+        <li style="color: #fff;">BONUS AM PREM</li>
+      </ul>
+    </div>
+
+    <!-- RULES COWOK -->
+    <div class="rule-panel">
+      <h2 class="rule-title">RULES COWK</h2>
+      <ul class="rule-list">
+        <li>AL / 18+</li>
+        <li>NO DB MARGA</li>
+        <li>NO BIKIN ONAR</li>
+        <li>NO DRAMA</li>
+        <li>NO KRAMB</li>
+        <li>NO KACANG</li>
+        <li style="color: #fff;">BONUS AM PREM</li>
+        <li>ML / TT</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BENEFIT SECTION -->
+  <div class="benefit-box">
+    <h3 class="benefit-title">BENFIT JOIN</h3>
+    <ul class="benefit-list">
+      <li>Cari Teman</li>
+      <li>Cari Teman Mabar</li>
+      <li>Teman Ngobrol</li>
+      <li>AM Premium 1 Tahun</li>
+    </ul>
+  </div>
+
+  <!-- JOIN SECTION -->
+  <div class="join-box" id="join">
+    <div class="join-text">BISA GABUNG SQ / MARGA<br>ATAU DUA-DUANYA</div>
+    <div class="join-cta">
+      <span>➢</span> JOIN ? DM US <span>➢</span>
+    </div>
+    
+    <!-- Tombol Interaktif -->
+    <div class="btn-group">
+      <!-- JOIN SQ & MARGA -> Masuk ke Grup WA -->
+      <a href="https://chat.whatsapp.com/CRqF79YAyPABrZRAW8mSma?s=cl&p=a&iam=2" class="btn btn-red btn-fx" id="btnSQ" target="_blank">JOIN SQ</a>
+      <a href="https://chat.whatsapp.com/CRqF79YAyPABrZRAW8mSma?s=cl&p=a&iam=2" class="btn btn-red btn-fx" id="btnMarga" target="_blank">JOIN MARGA</a>
+      
+      <!-- CONTACT ADMIN -> Masuk ke WA Admin (+62 838-3358-3048) -->
+      <a href="https://wa.me/6283833583048" class="btn btn-outline btn-fx" id="btnAdmin" target="_blank">CONTACT ADMIN</a>
+      
+      <a href="https://www.tiktok.com/@znnkeyy" class="btn btn-outline btn-tiktok btn-fx" id="btnTiktok" target="_blank">TIKTOK</a>
+    </div>
+  </div>
+
+</header>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-social">
+    Follow TikTok Admin: <a href="https://www.tiktok.com/@znnkeyy" target="_blank">@znnkeyy</a>
+  </div>
+  <br>
+  <button class="footer-btn btn-fx" id="openAdminFooter">⚙ ADMIN DASHBOARD</button>
+</footer>
+
+<!-- MODAL ADMIN -->
+<div class="modal" id="adminModal">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2>⚙ ADMIN PANEL</h2>
+      <button id="closeAdmin" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.2rem;">✕</button>
+    </div>
+    
+    <!-- Form Tambah Member -->
+    <div style="background:#111; padding:15px; border-radius:8px; margin-bottom:20px;">
+      <h3 style="font-size:0.9rem; margin-bottom:10px; color:#aaa;">TAMBAH MEMBER BARU</h3>
+      <div class="form-group"><input type="text" id="f-name" placeholder="Nama Member" /></div>
+      <div class="form-group"><input type="text" id="f-username" placeholder="Username (@)" /></div>
+      <div class="form-group">
+        <select id="f-category">
+          <option value="owner">OWNER</option>
+          <option value="admin">ADMIN</option>
+          <option value="member">MEMBER</option>
+        </select>
+      </div>
+      <button class="btn-sm btn-fx" style="background:var(--red);" id="addMemberBtn">+ TAMBAH</button>
+    </div>
+
+    <!-- List Member -->
+    <div id="adminList" style="max-height:200px; overflow-y:auto; margin-bottom:20px;"></div>
+    
+    <!-- Form Link Sosial Media -->
+    <div style="background:#111; padding:15px; border-radius:8px;">
+      <h3 style="font-size:0.9rem; margin-bottom:10px; color:#aaa;">LINK KONTAK / JOIN</h3>
+      <div class="form-group"><label>Link SQ</label><input type="text" id="c-sq" /></div>
+      <div class="form-group"><label>Link Marga</label><input type="text" id="c-marga" /></div>
+      <div class="form-group"><label>Link Admin WA</label><input type="text" id="c-admin" /></div>
+      <div class="form-group"><label>Link TikTok</label><input type="text" id="c-tiktok" /></div>
+      <button class="btn-sm btn-fx" style="background:#fff; color:#000;" id="saveConfigBtn">SIMPAN CONFIG</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ LOADER ============ */
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1500);
+});
+
+/* ============ CANVAS API (Fire & Sparks) ============ */
+const canvas = document.getElementById('fx-canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+let particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * W,
+    y: H + Math.random() * 100,
+    r: Math.random() * 2 + 1,
+    vx: (Math.random() - 0.5) * 1,
+    vy: -(Math.random() * 2 + 1),
+    life: Math.random() * 100
+  });
+}
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 1;
+    
+    if (p.y < 0 || p.life <= 0) {
+      p.x = Math.random() * W;
+      p.y = H + 20;
+      p.life = Math.random() * 100 + 50;
+      p.vx = (Math.random() - 0.5) * 1;
+      p.vy = -(Math.random() * 2 + 1);
+    }
+    
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, ${Math.random() * 50}, 0, ${p.life / 100})`;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ff0033';
+    ctx.fill();
+  });
+  
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ============ EFEK SENTUHAN TOMBOL (HAPTIC & SOUND) ============ */
+const clickAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playClickSound() {
+  if (clickAudioCtx.state === 'suspended') {
+    clickAudioCtx.resume();
+  }
+  
+  const osc = clickAudioCtx.createOscillator();
+  const gain = clickAudioCtx.createGain();
+  
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(800, clickAudioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(300, clickAudioCtx.currentTime + 0.05);
+  
+  gain.gain.setValueAtTime(0.05, clickAudioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, clickAudioCtx.currentTime + 0.08);
+  
+  osc.connect(gain);
+  gain.connect(clickAudioCtx.destination);
+  
+  osc.start();
+  osc.stop(clickAudioCtx.currentTime + 0.1);
+}
+
+document.querySelectorAll('.btn-fx').forEach(button => {
+  button.addEventListener('click', () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(40);
+    }
+    try { playClickSound(); } catch(e) {}
+  });
+});
+
+/* ============ DATA & ADMIN LOGIC ============ */
+const defaultMembers = [
+  { id: '1', name: 'NX9 KING', username: '@nx9king', category: 'owner' },
+  { id: '2', name: 'NYX', username: '@nyx', category: 'owner' },
+  { id: '3', name: 'RAVEN', username: '@raven', category: 'admin' },
+  { id: '4', name: 'BLAZE', username: '@blaze', category: 'member' }
+];
+
+// KONFIGURASI LINK DEFAULT
+const waGroupLink = "https://chat.whatsapp.com/CRqF79YAyPABrZRAW8mSma?s=cl&p=a&iam=2";
+const waAdminLink = "https://wa.me/6283833583048"; // Nomor WA Admin
+const tiktokLink = "https://www.tiktok.com/@znnkeyy";
+
+const defaultConfig = { 
+  sq: waGroupLink, 
+  marga: waGroupLink, 
+  admin: waAdminLink, // Kontak Admin sekarang ke nomor pribadi
+  tiktok: tiktokLink
+};
+
+let members = JSON.parse(localStorage.getItem('nx9_members')) || defaultMembers;
+let config = JSON.parse(localStorage.getItem('nx9_config')) || defaultConfig;
+
+function applyConfig() {
+  document.getElementById('btnSQ').href = config.sq;
+  document.getElementById('btnMarga').href = config.marga;
+  document.getElementById('btnAdmin').href = config.admin;
+  document.getElementById('btnTiktok').href = config.tiktok || tiktokLink;
+  document.querySelector('.footer-social a').href = config.tiktok || tiktokLink;
+  
+  ['btnSQ', 'btnMarga', 'btnAdmin', 'btnTiktok'].forEach(id => document.getElementById(id).target = '_blank');
+}
+applyConfig();
+
+const modal = document.getElementById('adminModal');
+document.getElementById('openAdminFooter').onclick = () => {
+  if (prompt('Password Admin:') === 'nx9admin') {
+    modal.classList.add('open');
+    renderAdmin();
+  }
+};
+document.getElementById('closeAdmin').onclick = () => modal.classList.remove('open');
+
+function renderAdmin() {
+  const list = document.getElementById('adminList');
+  list.innerHTML = members.map(m => `
+    <div class="admin-item">
+      <div>
+        <div style="font-weight:700; font-size:0.9rem;">${m.name}</div>
+        <div style="font-size:0.7rem; color:#888;">${m.username} • ${m.category}</div>
+      </div>
+      <button class="btn-sm" onclick="deleteMember('${m.id}')" style="background:#80001a;">HAPUS</button>
+    </div>
+  `).join('');
+  
+  document.getElementById('c-sq').value = config.sq;
+  document.getElementById('c-marga').value = config.marga;
+  document.getElementById('c-admin').value = config.admin;
+  document.getElementById('c-tiktok').value = config.tiktok || '';
+}
+
+window.deleteMember = function(id) {
+  members = members.filter(m => m.id !== id);
+  localStorage.setItem('nx9_members', JSON.stringify(members));
+  renderAdmin();
+};
+
+document.getElementById('addMemberBtn').onclick = () => {
+  const name = document.getElementById('f-name').value;
+  const username = document.getElementById('f-username').value;
+  const category = document.getElementById('f-category').value;
+  if(!name || !username) return alert('Isi semua kolom!');
+  
+  members.push({ id: Date.now().toString(), name, username, category });
+  localStorage.setItem('nx9_members', JSON.stringify(members));
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-username').value = '';
+  renderAdmin();
+};
+
+document.getElementById('saveConfigBtn').onclick = () => {
+  config = {
+    sq: document.getElementById('c-sq').value,
+    marga: document.getElementById('c-marga').value,
+    admin: document.getElementById('c-admin').value,
+    tiktok: document.getElementById('c-tiktok').value
+  };
+  localStorage.setItem('nx9_config', JSON.stringify(config));
+  applyConfig();
+  alert('Config disimpan!');
+};
+</script>
+</body>
+</html>
